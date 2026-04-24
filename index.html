@@ -8,7 +8,17 @@
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap');
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #fff5f8; font-family: 'Poppins', sans-serif; }
         #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .container { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 10; }
+        .container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+        
+        /* Tambahan Visualizer Musik */
+        .music-visualizer { display: flex; align-items: flex-end; gap: 4px; height: 20px; margin-bottom: 10px; }
+        .bar { width: 8px; background: #ff8fa3; animation: sound 1s infinite ease-in-out; }
+        .bar:nth-child(1) { animation-delay: 0.1s; }
+        .bar:nth-child(2) { animation-delay: 0.3s; }
+        .bar:nth-child(3) { animation-delay: 0.5s; }
+        .bar:nth-child(4) { animation-delay: 0.7s; }
+        @keyframes sound { 0%, 100% { height: 5px; } 50% { height: 20px; } }
+
         .card { background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 30px; text-align: center; width: 290px; border: 2px solid #ffcad4; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); position: relative; }
         .photo-container { width: 120px; height: 120px; margin: 0 auto 15px auto; border-radius: 50%; border: 4px solid #ff9a9e; overflow: hidden; display: none; }
         .photo-container img { width: 100%; height: 100%; object-fit: cover; }
@@ -57,6 +67,13 @@
     </div>
 
     <div class="container">
+        <div class="music-visualizer">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+
         <div class="card">
             <img src="images/butterflyy.png" class="butterfly bf-tl" id="bfTL" alt="butterfly">
             <img src="images/butterflyy.png" class="butterfly bf-br" id="bfBR" alt="butterfly">
@@ -105,7 +122,7 @@
         function typeWriter(text, i, fnCallback) {
             if (i < text.length) {
                 textElement.innerHTML = text.substring(0, i + 1);
-                setTimeout(() => typeWriter(text, i + 1, fnCallback), 90);
+                setTimeout(() => typeWriter(text, i + 1, fnCallback), 100);
             } else if (fnCallback) setTimeout(fnCallback, 600);
         }
 
@@ -130,7 +147,7 @@
                 bfTL.style.display = "block";
                 bfBR.style.display = "block";
 
-                textElement.innerHTML = "Makasih yaa buat semuanyaa! kamu berharga banget! ❤️";
+                textElement.innerHTML = "makasihh yaa buat semuanyaa! kamu berharga banget! ❤️";
                 nextBtn.innerHTML = "YEAYYYYY!! 🎆";
                 createExplosion(window.innerWidth / 2, window.innerHeight / 2);
                 nextBtn.onclick = triggerYayFirework;
@@ -143,7 +160,7 @@
             createExplosion(x, y);
             setTimeout(() => createExplosion(x - 100, y - 50), 100);
             setTimeout(() => createExplosion(x + 100, y - 50), 100);
-            setTimeout(() => createExplosion(x, y - 150), 200);
+            setTimeout(() => createExplosion(x, y - 100), 200);
         }
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -162,7 +179,7 @@
                     this.vy = Math.sin(angle)*force - 3;
                     this.life = 1; this.decay = Math.random()*0.01 + 0.005;
                     this.size = Math.random()*20+15;
-                    this.emoji = type === 'lily' ? '🌸' : ['🌸', '🦋', '🎉', '🌸', '🌸'][Math.floor(Math.random()*5)];
+                    this.emoji = type === 'lily' ? '🌸' : ['🌸', '💞', '🌸', '🌸', '🌸'][Math.floor(Math.random()*5)];
                 }
                 this.friction = 0.96;
             }
@@ -180,13 +197,16 @@
         }
 
         function createExplosion(x, y) {
-            // OPTIMASI: Ganti 35 jadi 20 biar enteng!
             for (let i = 0; i < 20; i++) particles.push(new Particle(x, y, false));
         }
 
         function loop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p, i) => { p.update(); p.draw(); if (p.life <= 0) particles.splice(i, 1); });
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].life <= 0) particles.splice(i, 1);
+            }
             requestAnimationFrame(loop);
         }
 
@@ -198,7 +218,7 @@
         loop();
 
         setInterval(() => {
-            if (particles.filter(p => !p.isBurst && p.type === 'lily').length < 20) {
+            if (particles.filter(p => !p.isTrail && p.type === 'lily').length < 10) {
                 particles.push(new Particle(Math.random()*canvas.width, -30, false, 'lily'));
             }
         }, 1000);
